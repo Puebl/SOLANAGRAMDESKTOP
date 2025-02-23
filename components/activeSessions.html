@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Active Sessions</title>
+    <style>
+        :root {
+            --primary-color: #3390EC;
+            --secondary-bg: #F4F4F5;
+            --text-color: #000000;
+            --danger-color: #FF3B30;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .back-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .sessions-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .sessions-section {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .section-header {
+            padding: 16px;
+            font-weight: 500;
+            border-bottom: 1px solid #E4E4E5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminate-all {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: var(--danger-color);
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .terminate-all:hover {
+            opacity: 0.9;
+        }
+
+        .session-item {
+            padding: 16px;
+            border-bottom: 1px solid #E4E4E5;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .session-item:last-child {
+            border-bottom: none;
+        }
+
+        .session-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background-color: var(--secondary-bg);
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .session-info {
+            flex: 1;
+        }
+
+        .session-device {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .session-details {
+            font-size: 13px;
+            color: #707579;
+            margin-bottom: 8px;
+        }
+
+        .session-location {
+            font-size: 13px;
+            color: #707579;
+        }
+
+        .session-actions {
+            margin-left: 16px;
+        }
+
+        .terminate-button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--danger-color);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: transparent;
+            color: var(--danger-color);
+            transition: all 0.2s;
+        }
+
+        .terminate-button:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .current-session {
+            background-color: #F5F9FC;
+        }
+
+        .current-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 16px;
+            color: #707579;
+        }
+
+        .confirmation-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            margin: 16px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .modal-text {
+            font-size: 14px;
+            color: #707579;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .modal-button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .modal-button.cancel {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+        }
+
+        .modal-button.confirm {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .modal-button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="closeActiveSessions()">←</button>
+        <h1 class="header-title">Active Sessions</h1>
+    </div>
+
+    <div class="sessions-container">
+        <div class="sessions-section">
+            <div class="section-header">
+                <span>Active Sessions</span>
+                <button class="terminate-all" onclick="showTerminateAllConfirmation()">
+                    Terminate All Other Sessions
+                </button>
+            </div>
+            <div id="sessionsList"></div>
+        </div>
+    </div>
+
+    <div class="confirmation-modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-title">Terminate All Other Sessions</div>
+            <div class="modal-text">
+                Are you sure you want to terminate all other active sessions? 
+                You'll need to log in again on all other devices.
+            </div>
+            <div class="modal-actions">
+                <button class="modal-button cancel" onclick="hideConfirmationModal()">Cancel</button>
+                <button class="modal-button confirm" onclick="terminateAllOtherSessions()">Terminate All</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const SettingsService = require('../services/settingsService');
+        
+        const settingsService = new SettingsService();
+        let currentSessionId = null;
+
+        // Инициализация при загрузке
+        window.onload = async () => {
+            currentSessionId = await ipcRenderer.invoke('get-current-session-id');
+            loadActiveSessions();
+        };
+
+        // Загрузка активных сессий
+        function loadActiveSessions() {
+            const sessions = settingsService.getActiveSessions();
+            const sessionsList = document.getElementById('sessionsList');
+            
+            if (sessions.length === 0) {
+                sessionsList.innerHTML = `
+                    <div class="empty-state">
+                        No active sessions found
+                    </div>
+                `;
+                return;
+            }
+
+            sessionsList.innerHTML = sessions.map(session => `
+                <div class="session-item ${session.id === currentSessionId ? 'current-session' : ''}">
+                    <div class="session-icon">
+                        ${getDeviceIcon(session.deviceType)}
+                    </div>
+                    <div class="session-info">
+                        <div class="session-device">
+                            ${session.deviceName}
+                            ${session.id === currentSessionId ? 
+                                '<span class="current-badge">Current</span>' : ''}
+                        </div>
+                        <div class="session-details">
+                            ${session.appVersion} • Last active: ${formatLastActive(session.lastActive)}
+                        </div>
+                        <div class="session-location">
+                            ${session.location || 'Unknown location'} • ${session.ip || 'Unknown IP'}
+                        </div>
+                    </div>
+                    ${session.id !== currentSessionId ? `
+                        <div class="session-actions">
+                            <button class="terminate-button" 
+                                onclick="terminateSession('${session.id}')">
+                                Terminate
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Получение иконки устройства
+        function getDeviceIcon(deviceType) {
+            const icons = {
+                desktop: '🖥️',
+                mobile: '📱',
+                tablet: '📱',
+                web: '🌐',
+                unknown: '📱'
+            };
+            return icons[deviceType] || icons.unknown;
+        }
+
+        // Форматирование времени последней активности
+        function formatLastActive(lastActive) {
+            const date = new Date(lastActive);
+            const now = new Date();
+            const diff = now - date;
+            
+            if (diff < 60000) { // менее минуты
+                return 'just now';
+            } else if (diff < 3600000) { // менее часа
+                const minutes = Math.floor(diff / 60000);
+                return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+            } else if (diff < 86400000) { // менее суток
+                const hours = Math.floor(diff / 3600000);
+                return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+
+        // Завершение сессии
+        async function terminateSession(sessionId) {
+            try {
+                await ipcRenderer.invoke('terminate-session', { sessionId });
+                settingsService.removeActiveSession(sessionId);
+                loadActiveSessions();
+            } catch (error) {
+                console.error('Error terminating session:', error);
+                // Показать уведомление об ошибке
+            }
+        }
+
+        // Показать подтверждение завершения всех сессий
+        function showTerminateAllConfirmation() {
+            document.getElementById('confirmationModal').style.display = 'flex';
+        }
+
+        // Скрыть модальное окно подтверждения
+        function hideConfirmationModal() {
+            document.getElementById('confirmationModal').style.display = 'none';
+        }
+
+        // Завершить все другие сессии
+        async function terminateAllOtherSessions() {
+            try {
+                await ipcRenderer.invoke('terminate-all-sessions');
+                
+                const sessions = settingsService.getActiveSessions();
+                const remainingSessions = sessions.filter(session => 
+                    session.id === currentSessionId
+                );
+                
+                settingsService.store.set('security.activeSessions', remainingSessions);
+                hideConfirmationModal();
+                loadActiveSessions();
+            } catch (error) {
+                console.error('Error terminating all sessions:', error);
+                // Показать уведомление об ошибке
+            }
+        }
+
+        // Закрытие окна активных сессий
+        function closeActiveSessions() {
+            ipcRenderer.send('close-active-sessions');
+        }
+
+        // Подписка на изменения сессий
+        settingsService.onSettingsChange((newValue, oldValue) => {
+            if (newValue.security?.activeSessions !== oldValue.security?.activeSessions) {
+                loadActiveSessions();
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Contacts</title>
+    <style>
+        :root {
+            --primary-color: #3390EC;
+            --secondary-bg: #F4F4F5;
+            --text-color: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: white;
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E4E4E5;
+            background-color: white;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .back-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+            margin: 0 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: none;
+            border-radius: 22px;
+            background-color: var(--secondary-bg);
+            font-size: 15px;
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #707579;
+        }
+
+        .add-contact {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .add-contact:hover {
+            opacity: 0.9;
+        }
+
+        .contacts-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .contact-section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #707579;
+            text-transform: uppercase;
+        }
+
+        .contact-list {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #E4E4E5;
+            cursor: pointer;
+        }
+
+        .contact-item:last-child {
+            border-bottom: none;
+        }
+
+        .contact-item:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .contact-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--secondary-bg);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .contact-status {
+            font-size: 13px;
+            color: #707579;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-button {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #707579;
+        }
+
+        .action-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 400px;
+        }
+
+        .modal-header {
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #E4E4E5;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-secondary {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="closeContacts()">←</button>
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Search contacts" 
+                onkeyup="searchContacts(this.value)">
+        </div>
+        <button class="add-contact" onclick="showAddContactModal()">Add Contact</button>
+    </div>
+
+    <div class="contacts-container" id="contactsContainer">
+        <!-- Контакты будут добавлены динамически -->
+    </div>
+
+    <!-- Модальное окно добавления контакта -->
+    <div class="modal" id="addContactModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Contact</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-input" id="contactName" 
+                        placeholder="Enter contact name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Public Key</label>
+                    <input type="text" class="form-input" id="contactPublicKey" 
+                        placeholder="Enter contact's public key">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="button button-secondary" onclick="closeModal('addContactModal')">Cancel</button>
+                <button class="button button-primary" onclick="addContact()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const Store = require('electron-store');
+        
+        const store = new Store();
+        let contacts = [];
+
+        // Инициализация при загрузке
+        window.onload = () => {
+            loadContacts();
+        };
+
+        // Загрузка контактов
+        function loadContacts() {
+            contacts = store.get('contacts') || [];
+            displayContacts(contacts);
+        }
+
+        // Отображение контактов
+        function displayContacts(contactsList) {
+            const container = document.getElementById('contactsContainer');
+            container.innerHTML = '';
+
+            // Группируем контакты по первой букве
+            const grouped = groupContacts(contactsList);
+
+            // Создаем секции для каждой буквы
+            Object.entries(grouped).forEach(([letter, contacts]) => {
+                const section = document.createElement('div');
+                section.className = 'contact-section';
+                section.innerHTML = `
+                    <div class="section-header">${letter}</div>
+                    <div class="contact-list">
+                        ${contacts.map(contact => `
+                            <div class="contact-item">
+                                <div class="contact-avatar">${contact.name[0]}</div>
+                                <div class="contact-info">
+                                    <div class="contact-name">${contact.name}</div>
+                                    <div class="contact-status">${contact.publicKey.slice(0, 16)}...</div>
+                                </div>
+                                <div class="contact-actions">
+                                    <button class="action-button" onclick="startChat('${contact.publicKey}')">💬</button>
+                                    <button class="action-button" onclick="editContact('${contact.publicKey}')">✏️</button>
+                                    <button class="action-button" onclick="deleteContact('${contact.publicKey}')">🗑️</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        // Группировка контактов по первой букве
+        function groupContacts(contacts) {
+            return contacts.reduce((groups, contact) => {
+                const letter = contact.name[0].toUpperCase();
+                if (!groups[letter]) {
+                    groups[letter] = [];
+                }
+                groups[letter].push(contact);
+                return groups;
+            }, {});
+        }
+
+        // Поиск контактов
+        function searchContacts(query) {
+            query = query.toLowerCase();
+            const filtered = contacts.filter(contact => 
+                contact.name.toLowerCase().includes(query) ||
+                contact.publicKey.toLowerCase().includes(query)
+            );
+            displayContacts(filtered);
+        }
+
+        // Показ модального окна добавления контакта
+        function showAddContactModal() {
+            document.getElementById('addContactModal').classList.add('active');
+        }
+
+        // Закрытие модального окна
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Добавление контакта
+        function addContact() {
+            const name = document.getElementById('contactName').value.trim();
+            const publicKey = document.getElementById('contactPublicKey').value.trim();
+
+            if (!name || !publicKey) {
+                // Показать ошибку
+                return;
+            }
+
+            contacts.push({ name, publicKey });
+            contacts.sort((a, b) => a.name.localeCompare(b.name));
+            store.set('contacts', contacts);
+            loadContacts();
+            closeModal('addContactModal');
+
+            // Очищаем поля
+            document.getElementById('contactName').value = '';
+            document.getElementById('contactPublicKey').value = '';
+        }
+
+        // Редактирование контакта
+        function editContact(publicKey) {
+            const contact = contacts.find(c => c.publicKey === publicKey);
+            if (!contact) return;
+
+            // Здесь можно добавить модальное окно редактирования
+            const newName = prompt('Enter new name:', contact.name);
+            if (newName && newName.trim()) {
+                contact.name = newName.trim();
+                store.set('contacts', contacts);
+                loadContacts();
+            }
+        }
+
+        // Удаление контакта
+        function deleteContact(publicKey) {
+            if (confirm('Are you sure you want to delete this contact?')) {
+                contacts = contacts.filter(c => c.publicKey !== publicKey);
+                store.set('contacts', contacts);
+                loadContacts();
+            }
+        }
+
+        // Начать чат с контактом
+        function startChat(publicKey) {
+            ipcRenderer.send('start-chat', publicKey);
+        }
+
+        // Закрытие окна контактов
+        function closeContacts() {
+            ipcRenderer.send('close-contacts');
+        }
+    </script>
+</body>
+</html> 

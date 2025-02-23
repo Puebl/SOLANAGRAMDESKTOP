@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Channel Info</title>
+    <style>
+        :root {
+            --primary-color: #3390EC;
+            --secondary-bg: #F4F4F5;
+            --text-color: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .back-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .channel-info {
+            padding: 24px;
+            background-color: white;
+            margin: 16px;
+            border-radius: 12px;
+        }
+
+        .channel-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .channel-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background-color: var(--secondary-bg);
+            margin-right: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--primary-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .channel-avatar:hover::after {
+            content: "Change Photo";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 8px;
+            font-size: 14px;
+            text-align: center;
+            border-bottom-left-radius: 60px;
+            border-bottom-right-radius: 60px;
+        }
+
+        .channel-details {
+            flex: 1;
+        }
+
+        .channel-name {
+            font-size: 24px;
+            font-weight: 500;
+            margin: 0 0 8px;
+        }
+
+        .channel-description {
+            color: #707579;
+            margin: 0 0 16px;
+        }
+
+        .channel-stats {
+            display: flex;
+            gap: 24px;
+            color: #707579;
+            font-size: 14px;
+        }
+
+        .section {
+            background-color: white;
+            margin: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 16px;
+            font-weight: 500;
+            border-bottom: 1px solid #E4E4E5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .subscriber-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .subscriber-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .subscriber-item:last-child {
+            border-bottom: none;
+        }
+
+        .subscriber-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: var(--secondary-bg);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .subscriber-details {
+            flex: 1;
+        }
+
+        .subscriber-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .subscriber-status {
+            font-size: 13px;
+            color: #707579;
+        }
+
+        .subscriber-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-secondary {
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+        }
+
+        .button-danger {
+            background-color: #FF4545;
+            color: white;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            width: 400px;
+        }
+
+        .modal-header {
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .modal-body {
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #E4E4E5;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .toggle-switch:last-child {
+            border-bottom: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+        }
+
+        .toggle-description {
+            font-size: 13px;
+            color: #707579;
+            margin-top: 4px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #CCC;
+            transition: .2s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="closeChannelInfo()">←</button>
+        <h1 class="channel-name" id="headerChannelName">Channel Name</h1>
+    </div>
+
+    <div class="channel-info">
+        <div class="channel-header">
+            <div class="channel-avatar" onclick="changeChannelAvatar()" id="channelAvatar">C</div>
+            <div class="channel-details">
+                <h2 class="channel-name" id="channelName">Channel Name</h2>
+                <p class="channel-description" id="channelDescription">Channel Description</p>
+                <div class="channel-stats">
+                    <span id="subscriberCount">0 subscribers</span>
+                    <span id="adminCount">0 admins</span>
+                    <span id="createdAt">Created on: </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span>Settings</span>
+            <button class="button button-primary" onclick="showEditChannelModal()">Edit</button>
+        </div>
+        <div class="toggle-switch">
+            <div class="toggle-label">
+                <div>Private Channel</div>
+                <div class="toggle-description">Only admins can add subscribers</div>
+            </div>
+            <label class="switch">
+                <input type="checkbox" id="privateChannel" onchange="togglePrivate(this.checked)">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
+            <span>Subscribers</span>
+            <button class="button button-primary" onclick="showAddSubscriberModal()">Add Subscriber</button>
+        </div>
+        <div class="subscriber-list" id="subscriberList">
+            <!-- Subscribers will be added dynamically -->
+        </div>
+    </div>
+
+    <!-- Модальное окно добавления подписчика -->
+    <div class="modal" id="addSubscriberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Subscriber</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Subscriber Public Key</label>
+                    <input type="text" class="form-input" id="subscriberPublicKey" 
+                        placeholder="Enter subscriber's public key">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="button button-secondary" onclick="closeModal('addSubscriberModal')">Cancel</button>
+                <button class="button button-primary" onclick="addSubscriber()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования канала -->
+    <div class="modal" id="editChannelModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Channel</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Channel Name</label>
+                    <input type="text" class="form-input" id="editChannelName">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-input" id="editChannelDescription" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="button button-secondary" onclick="closeModal('editChannelModal')">Cancel</button>
+                <button class="button button-primary" onclick="updateChannelInfo()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const ChannelService = require('../services/channelService');
+        const WalletService = require('../services/wallet');
+        const MessageService = require('../services/messageService');
+        
+        let channelService;
+        let currentChannel;
+
+        // Инициализация при загрузке
+        window.onload = async () => {
+            const walletService = new WalletService();
+            const messageService = new MessageService(walletService);
+            channelService = new ChannelService(walletService, messageService);
+
+            // Получаем ID канала из параметров URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelId = urlParams.get('id');
+
+            if (channelId) {
+                await loadChannelInfo(channelId);
+            }
+        };
+
+        // Загрузка информации о канале
+        async function loadChannelInfo(channelId) {
+            try {
+                currentChannel = await channelService.getChannelInfo(channelId);
+                
+                // Обновляем информацию в интерфейсе
+                document.getElementById('headerChannelName').textContent = currentChannel.name;
+                document.getElementById('channelName').textContent = currentChannel.name;
+                document.getElementById('channelDescription').textContent = currentChannel.description;
+                document.getElementById('subscriberCount').textContent = 
+                    `${currentChannel.subscribers.length} subscribers`;
+                document.getElementById('adminCount').textContent = 
+                    `${currentChannel.admins.length} admins`;
+                document.getElementById('createdAt').textContent = 
+                    `Created on: ${new Date(currentChannel.createdAt).toLocaleDateString()}`;
+                document.getElementById('privateChannel').checked = currentChannel.isPrivate;
+
+                // Устанавливаем аватар
+                const avatar = document.getElementById('channelAvatar');
+                if (currentChannel.avatar) {
+                    avatar.style.backgroundImage = `url(${currentChannel.avatar})`;
+                    avatar.textContent = '';
+                } else {
+                    avatar.textContent = currentChannel.name[0];
+                }
+
+                // Загружаем список подписчиков
+                await loadSubscribers();
+            } catch (error) {
+                console.error('Error loading channel info:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Загрузка списка подписчиков
+        async function loadSubscribers() {
+            const subscriberList = document.getElementById('subscriberList');
+            subscriberList.innerHTML = '';
+
+            for (const subscriberKey of currentChannel.subscribers) {
+                const isAdmin = currentChannel.admins.includes(subscriberKey);
+                const isOwner = subscriberKey === currentChannel.owner;
+
+                const subscriberElement = document.createElement('div');
+                subscriberElement.className = 'subscriber-item';
+                subscriberElement.innerHTML = `
+                    <div class="subscriber-avatar">${subscriberKey[0]}</div>
+                    <div class="subscriber-details">
+                        <div class="subscriber-name">${subscriberKey.slice(0, 8)}...</div>
+                        <div class="subscriber-status">${isOwner ? 'Owner' : isAdmin ? 'Admin' : 'Subscriber'}</div>
+                    </div>
+                    ${!isOwner ? `
+                        <div class="subscriber-actions">
+                            ${isAdmin ? `
+                                <button class="button button-secondary" 
+                                    onclick="removeAdmin('${subscriberKey}')">
+                                    Remove Admin
+                                </button>
+                            ` : `
+                                <button class="button button-secondary" 
+                                    onclick="makeAdmin('${subscriberKey}')">
+                                    Make Admin
+                                </button>
+                            `}
+                            <button class="button button-danger" 
+                                onclick="removeSubscriber('${subscriberKey}')">
+                                Remove
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+
+                subscriberList.appendChild(subscriberElement);
+            }
+        }
+
+        // Показ модального окна добавления подписчика
+        function showAddSubscriberModal() {
+            document.getElementById('addSubscriberModal').classList.add('active');
+        }
+
+        // Показ модального окна редактирования канала
+        function showEditChannelModal() {
+            document.getElementById('editChannelName').value = currentChannel.name;
+            document.getElementById('editChannelDescription').value = currentChannel.description;
+            document.getElementById('editChannelModal').classList.add('active');
+        }
+
+        // Закрытие модального окна
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Добавление подписчика
+        async function addSubscriber() {
+            try {
+                const publicKey = document.getElementById('subscriberPublicKey').value.trim();
+                await channelService.addSubscriber(currentChannel.id, publicKey);
+                await loadChannelInfo(currentChannel.id);
+                closeModal('addSubscriberModal');
+            } catch (error) {
+                console.error('Error adding subscriber:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Назначение администратором
+        async function makeAdmin(subscriberKey) {
+            try {
+                await channelService.addAdmin(currentChannel.id, subscriberKey);
+                await loadChannelInfo(currentChannel.id);
+            } catch (error) {
+                console.error('Error making admin:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Удаление из администраторов
+        async function removeAdmin(subscriberKey) {
+            try {
+                await channelService.removeAdmin(currentChannel.id, subscriberKey);
+                await loadChannelInfo(currentChannel.id);
+            } catch (error) {
+                console.error('Error removing admin:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Удаление подписчика
+        async function removeSubscriber(subscriberKey) {
+            if (confirm('Are you sure you want to remove this subscriber?')) {
+                try {
+                    await channelService.removeSubscriber(currentChannel.id, subscriberKey);
+                    await loadChannelInfo(currentChannel.id);
+                } catch (error) {
+                    console.error('Error removing subscriber:', error);
+                    // Показываем уведомление об ошибке
+                }
+            }
+        }
+
+        // Изменение аватара канала
+        async function changeChannelAvatar() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    try {
+                        await channelService.uploadChannelAvatar(currentChannel.id, file);
+                        await loadChannelInfo(currentChannel.id);
+                    } catch (error) {
+                        console.error('Error uploading avatar:', error);
+                        // Показываем уведомление об ошибке
+                    }
+                }
+            };
+            input.click();
+        }
+
+        // Обновление информации о канале
+        async function updateChannelInfo() {
+            try {
+                const name = document.getElementById('editChannelName').value.trim();
+                const description = document.getElementById('editChannelDescription').value.trim();
+                
+                await channelService.updateChannelInfo(currentChannel.id, {
+                    name,
+                    description
+                });
+
+                await loadChannelInfo(currentChannel.id);
+                closeModal('editChannelModal');
+            } catch (error) {
+                console.error('Error updating channel info:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Переключение приватности канала
+        async function togglePrivate(isPrivate) {
+            try {
+                await channelService.updateChannelInfo(currentChannel.id, {
+                    isPrivate
+                });
+                await loadChannelInfo(currentChannel.id);
+            } catch (error) {
+                console.error('Error toggling private mode:', error);
+                // Показываем уведомление об ошибке
+            }
+        }
+
+        // Закрытие окна информации о канале
+        function closeChannelInfo() {
+            ipcRenderer.send('close-channel-info');
+        }
+    </script>
+</body>
+</html> 

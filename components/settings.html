@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SOLANAGRAM - Settings</title>
+    <style>
+        :root {
+            --primary-color: #3390EC;
+            --secondary-bg: #F4F4F5;
+            --text-color: #000000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: white;
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+        }
+
+        .settings-sidebar {
+            width: 260px;
+            background-color: white;
+            border-right: 1px solid #E4E4E5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-content {
+            flex: 1;
+            padding: 24px;
+            background-color: var(--secondary-bg);
+            overflow-y: auto;
+        }
+
+        .settings-header {
+            padding: 16px;
+            border-bottom: 1px solid #E4E4E5;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .back-button:hover {
+            background-color: #F4F4F5;
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .settings-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .settings-menu-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .settings-menu-item:hover {
+            background-color: #F4F4F5;
+        }
+
+        .settings-menu-item.active {
+            background-color: #3390EC1A;
+            color: var(--primary-color);
+        }
+
+        .settings-menu-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin: 0 0 16px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .settings-row:last-child {
+            border-bottom: none;
+        }
+
+        .settings-label {
+            font-size: 15px;
+        }
+
+        .settings-description {
+            font-size: 13px;
+            color: #707579;
+            margin-top: 4px;
+        }
+
+        .settings-control {
+            display: flex;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #CCC;
+            transition: .2s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #E4E4E5;
+            font-size: 15px;
+            outline: none;
+            background-color: white;
+        }
+
+        select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 200px;
+            height: 4px;
+            border-radius: 2px;
+            background: #E4E4E5;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .button-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .button-secondary {
+            background-color: #F4F4F5;
+            color: var(--text-color);
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-sidebar">
+        <div class="settings-header">
+            <button class="back-button" onclick="closeSettings()">←</button>
+            <h1 class="settings-title">Settings</h1>
+        </div>
+        <ul class="settings-menu">
+            <li class="settings-menu-item active" onclick="showSection('general')">
+                <span class="settings-menu-icon">⚙️</span>
+                General
+            </li>
+            <li class="settings-menu-item" onclick="showSection('notifications')">
+                <span class="settings-menu-icon">🔔</span>
+                Notifications
+            </li>
+            <li class="settings-menu-item" onclick="showSection('privacy')">
+                <span class="settings-menu-icon">🔒</span>
+                Privacy
+            </li>
+            <li class="settings-menu-item" onclick="showSection('chat')">
+                <span class="settings-menu-icon">💬</span>
+                Chat Settings
+            </li>
+            <li class="settings-menu-item" onclick="showSection('appearance')">
+                <span class="settings-menu-icon">🎨</span>
+                Appearance
+            </li>
+            <li class="settings-menu-item" onclick="showSection('advanced')">
+                <span class="settings-menu-icon">🛠️</span>
+                Advanced
+            </li>
+        </ul>
+    </div>
+    <div class="settings-content" id="settingsContent">
+        <!-- Секции настроек будут добавлены динамически -->
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const SettingsService = require('../services/settingsService');
+        
+        const settingsService = new SettingsService();
+        let currentSection = 'general';
+
+        // Загрузка настроек при открытии
+        window.onload = () => {
+            loadSettings();
+            showSection('general');
+        };
+
+        // Загрузка настроек
+        function loadSettings() {
+            const settings = settingsService.getAllSettings();
+            Object.entries(settings).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = value;
+                    } else {
+                        element.value = value;
+                    }
+                }
+            });
+        }
+
+        // Показ секции настроек
+        function showSection(section) {
+            currentSection = section;
+            
+            // Обновляем активный пункт меню
+            document.querySelectorAll('.settings-menu-item').forEach(item => {
+                item.classList.toggle('active', item.textContent.toLowerCase().includes(section));
+            });
+
+            // Загружаем содержимое секции
+            const content = document.getElementById('settingsContent');
+            content.innerHTML = '';
+
+            switch (section) {
+                case 'general':
+                    content.innerHTML = createGeneralSection();
+                    break;
+                case 'notifications':
+                    content.innerHTML = createNotificationsSection();
+                    break;
+                case 'privacy':
+                    content.innerHTML = createPrivacySection();
+                    break;
+                case 'chat':
+                    content.innerHTML = createChatSection();
+                    break;
+                case 'appearance':
+                    content.innerHTML = createAppearanceSection();
+                    break;
+                case 'advanced':
+                    content.innerHTML = createAdvancedSection();
+                    break;
+            }
+
+            // Загружаем текущие настройки
+            loadSettings();
+        }
+
+        // Создание секции общих настроек
+        function createGeneralSection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">General Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Language</div>
+                            <div class="settings-description">Select your preferred language</div>
+                        </div>
+                        <div class="settings-control">
+                            <select id="language" onchange="updateSetting('language', this.value)">
+                                <option value="en">English</option>
+                                <option value="ru">Русский</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание секции уведомлений
+        function createNotificationsSection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">Notification Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Desktop Notifications</div>
+                            <div class="settings-description">Show notifications on your desktop</div>
+                        </div>
+                        <div class="settings-control">
+                            <label class="switch">
+                                <input type="checkbox" id="notifications.desktop" 
+                                    onchange="updateSetting('notifications.desktop', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Sound</div>
+                            <div class="settings-description">Play sound for new messages</div>
+                        </div>
+                        <div class="settings-control">
+                            <label class="switch">
+                                <input type="checkbox" id="notifications.sound"
+                                    onchange="updateSetting('notifications.sound', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание секции приватности
+        function createPrivacySection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">Privacy Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Last Seen</div>
+                            <div class="settings-description">Who can see your last seen time</div>
+                        </div>
+                        <div class="settings-control">
+                            <select id="privacy.lastSeen" onchange="updateSetting('privacy.lastSeen', this.value)">
+                                <option value="everybody">Everybody</option>
+                                <option value="contacts">Contacts</option>
+                                <option value="nobody">Nobody</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание секции настроек чата
+        function createChatSection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">Chat Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Font Size</div>
+                            <div class="settings-description">Adjust message text size</div>
+                        </div>
+                        <div class="settings-control">
+                            <input type="range" class="range-slider" id="chat.fontSize" 
+                                min="12" max="20" step="1"
+                                onchange="updateSetting('chat.fontSize', this.value)">
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Send with Enter</div>
+                            <div class="settings-description">Use Enter key to send messages</div>
+                        </div>
+                        <div class="settings-control">
+                            <label class="switch">
+                                <input type="checkbox" id="chat.sendWithEnter"
+                                    onchange="updateSetting('chat.sendWithEnter', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание секции внешнего вида
+        function createAppearanceSection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">Appearance Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Theme</div>
+                            <div class="settings-description">Choose your preferred theme</div>
+                        </div>
+                        <div class="settings-control">
+                            <select id="theme" onchange="updateSetting('theme', this.value)">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Message Corners</div>
+                            <div class="settings-description">Choose message bubble style</div>
+                        </div>
+                        <div class="settings-control">
+                            <select id="appearance.messageCorners" 
+                                onchange="updateSetting('appearance.messageCorners', this.value)">
+                                <option value="rounded">Rounded</option>
+                                <option value="square">Square</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Создание секции расширенных настроек
+        function createAdvancedSection() {
+            return `
+                <div class="settings-section">
+                    <h2 class="settings-section-title">Advanced Settings</h2>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Network Usage</div>
+                            <div class="settings-description">Control data usage</div>
+                        </div>
+                        <div class="settings-control">
+                            <select id="advanced.networkUsage" 
+                                onchange="updateSetting('advanced.networkUsage', this.value)">
+                                <option value="auto">Auto</option>
+                                <option value="low">Low</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-row">
+                        <div>
+                            <div class="settings-label">Enable Proxy</div>
+                            <div class="settings-description">Use proxy for connections</div>
+                        </div>
+                        <div class="settings-control">
+                            <label class="switch">
+                                <input type="checkbox" id="advanced.proxyEnabled"
+                                    onchange="updateSetting('advanced.proxyEnabled', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Обновление настройки
+        function updateSetting(key, value) {
+            settingsService.setSetting(key, value);
+            settingsService.applySettings();
+        }
+
+        // Закрытие окна настроек
+        function closeSettings() {
+            ipcRenderer.send('close-settings');
+        }
+
+        // Подписка на изменения настроек
+        settingsService.onSettingsChange((newValue, oldValue) => {
+            // Применяем изменения в реальном времени
+            settingsService.applySettings();
+        });
+    </script>
+</body>
+</html> 

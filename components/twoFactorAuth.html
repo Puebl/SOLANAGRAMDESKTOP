@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Two-Factor Authentication</title>
+    <style>
+        :root {
+            --primary-color: #3390EC;
+            --secondary-bg: #F4F4F5;
+            --text-color: #000000;
+            --success-color: #34C759;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+
+        .back-button:hover {
+            background-color: var(--secondary-bg);
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .content-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .setup-section {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .section-header {
+            padding: 16px;
+            font-weight: 500;
+            border-bottom: 1px solid #E4E4E5;
+        }
+
+        .section-content {
+            padding: 24px;
+        }
+
+        .step {
+            margin-bottom: 32px;
+        }
+
+        .step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .step-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .step-content {
+            margin-left: 36px;
+        }
+
+        .qr-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 16px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+
+        .secret-key {
+            font-family: monospace;
+            background-color: var(--secondary-bg);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .copy-button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: var(--secondary-bg);
+            color: var(--text-color);
+            transition: background-color 0.2s;
+        }
+
+        .copy-button:hover {
+            background-color: #E8E8E9;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #707579;
+        }
+
+        .code-input {
+            width: 200px;
+            padding: 12px;
+            border: 1px solid #E4E4E5;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: monospace;
+            letter-spacing: 2px;
+            outline: none;
+        }
+
+        .code-input:focus {
+            border-color: var(--primary-color);
+        }
+
+        .verify-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            transition: opacity 0.2s;
+        }
+
+        .verify-button:hover {
+            opacity: 0.9;
+        }
+
+        .verify-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            align-items: center;
+            padding: 16px;
+            background-color: var(--success-color);
+            color: white;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .success-icon {
+            margin-right: 8px;
+            font-size: 20px;
+        }
+
+        .error-message {
+            display: none;
+            color: #FF3B30;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .recovery-codes {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+        }
+
+        .recovery-codes-title {
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .recovery-codes-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            font-family: monospace;
+            margin-bottom: 16px;
+        }
+
+        .recovery-code {
+            padding: 8px;
+            background-color: white;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .download-codes {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--primary-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background-color: transparent;
+            color: var(--primary-color);
+            transition: all 0.2s;
+        }
+
+        .download-codes:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="close2FASetup()">←</button>
+        <h1 class="header-title">Two-Factor Authentication</h1>
+    </div>
+
+    <div class="content-container">
+        <div class="setup-section">
+            <div class="section-header">Setup Two-Factor Authentication</div>
+            <div class="section-content">
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Install an authenticator app</div>
+                    </div>
+                    <div class="step-content">
+                        <p>
+                            Download and install an authenticator app on your mobile device:
+                        </p>
+                        <ul>
+                            <li>Google Authenticator</li>
+                            <li>Microsoft Authenticator</li>
+                            <li>Authy</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Scan QR code or enter secret key</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="qr-container">
+                            <div id="qrCode"></div>
+                        </div>
+                        <div>
+                            <p>Or enter this secret key manually:</p>
+                            <div class="secret-key" id="secretKey"></div>
+                            <button class="copy-button" onclick="copySecretKey()">
+                                Copy Secret Key
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-header">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Enter verification code</div>
+                    </div>
+                    <div class="step-content">
+                        <div class="input-group">
+                            <label class="input-label" for="verificationCode">
+                                Enter the 6-digit code from your authenticator app
+                            </label>
+                            <input type="text" id="verificationCode" class="code-input" 
+                                maxlength="6" placeholder="000000"
+                                oninput="handleCodeInput(this)">
+                            <div class="error-message" id="errorMessage">
+                                Invalid verification code. Please try again.
+                            </div>
+                        </div>
+                        <button class="verify-button" id="verifyButton" 
+                            onclick="verifyCode()" disabled>
+                            Verify and Enable
+                        </button>
+                        <div class="success-message" id="successMessage">
+                            <span class="success-icon">✓</span>
+                            Two-factor authentication has been enabled successfully
+                        </div>
+                    </div>
+                </div>
+
+                <div id="recoveryCodes" style="display: none;">
+                    <div class="step">
+                        <div class="step-header">
+                            <div class="step-number">4</div>
+                            <div class="step-title">Save your recovery codes</div>
+                        </div>
+                        <div class="step-content">
+                            <p>
+                                Keep these recovery codes in a safe place. If you lose your 
+                                phone or can't access your authenticator app, you can use 
+                                these codes to sign in.
+                            </p>
+                            <div class="recovery-codes">
+                                <div class="recovery-codes-title">Recovery Codes</div>
+                                <div class="recovery-codes-list" id="recoveryCodesList"></div>
+                                <button class="download-codes" onclick="downloadRecoveryCodes()">
+                                    Download Recovery Codes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        const SettingsService = require('../services/settingsService');
+        const QRCode = require('qrcode');
+        
+        const settingsService = new SettingsService();
+        let secretKey = '';
+        let recoveryCodes = [];
+
+        // Инициализация при загрузке
+        window.onload = async () => {
+            await initializeTwoFactorSetup();
+        };
+
+        // Инициализация настройки 2FA
+        async function initializeTwoFactorSetup() {
+            try {
+                const response = await ipcRenderer.invoke('initialize-2fa');
+                
+                if (response.success) {
+                    secretKey = response.secret;
+                    
+                    // Генерация QR-кода
+                    const qrCodeUrl = `otpauth://totp/Solanagram:${response.email}?secret=${response.secret}&issuer=Solanagram`;
+                    await QRCode.toCanvas(document.getElementById('qrCode'), qrCodeUrl, {
+                        width: 200,
+                        margin: 0
+                    });
+
+                    // Отображение секретного ключа
+                    document.getElementById('secretKey').textContent = response.secret;
+                }
+            } catch (error) {
+                console.error('Error initializing 2FA:', error);
+                // Показать уведомление об ошибке
+            }
+        }
+
+        // Обработка ввода кода
+        function handleCodeInput(input) {
+            const code = input.value.replace(/\D/g, '');
+            input.value = code;
+            
+            document.getElementById('verifyButton').disabled = code.length !== 6;
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Копирование секретного ключа
+        function copySecretKey() {
+            navigator.clipboard.writeText(secretKey);
+            // Показать уведомление об успешном копировании
+        }
+
+        // Проверка кода подтверждения
+        async function verifyCode() {
+            const code = document.getElementById('verificationCode').value;
+            
+            try {
+                const response = await settingsService.verifyTwoFactorCode(code);
+                
+                if (response) {
+                    document.getElementById('successMessage').style.display = 'flex';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Получение кодов восстановления
+                    recoveryCodes = await ipcRenderer.invoke('generate-recovery-codes');
+                    displayRecoveryCodes(recoveryCodes);
+                } else {
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error verifying 2FA code:', error);
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+
+        // Отображение кодов восстановления
+        function displayRecoveryCodes(codes) {
+            document.getElementById('recoveryCodes').style.display = 'block';
+            
+            const codesList = document.getElementById('recoveryCodesList');
+            codesList.innerHTML = codes.map(code => 
+                `<div class="recovery-code">${code}</div>`
+            ).join('');
+        }
+
+        // Скачивание кодов восстановления
+        function downloadRecoveryCodes() {
+            const content = 'SOLANAGRAM RECOVERY CODES\n\n' +
+                'Keep these recovery codes in a safe place. Each code can only be used once.\n\n' +
+                recoveryCodes.join('\n');
+            
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'solanagram-recovery-codes.txt';
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Закрытие окна настройки 2FA
+        function close2FASetup() {
+            ipcRenderer.send('close-2fa-setup');
+        }
+    </script>
+</body>
+</html> 
