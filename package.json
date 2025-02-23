@@ -1,0 +1,56 @@
+{
+  "name": "solanagram",
+  "version": "1.0.0",
+  "description": "Solana-based messaging app with AR features",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "test": "jest",
+    "build": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@solana/web3.js": "^1.87.6",
+    "axios": "^1.6.7",
+    "canvas": "^2.11.2",
+    "electron": "^28.2.0",
+    "electron-store": "^8.1.0",
+    "ipfs-http-client": "^60.0.1",
+    "opencv4nodejs": "^5.6.0",
+    "socket.io-client": "^4.7.4",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "buffer": "^6.0.3"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.9.1",
+    "electron-reload": "^2.0.0-alpha.1",
+    "jest": "^29.7.0"
+  },
+  "build": {
+    "appId": "com.solanagram.app",
+    "productName": "Solanagram",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "src/assets/icon.png"
+    }
+  }
+}
